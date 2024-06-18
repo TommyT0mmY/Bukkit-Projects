@@ -1,11 +1,11 @@
 package com.github.tommyt0mmy.firefighter;
 
-import com.github.tommyt0mmy.firefighter.commands.Fireset;
-import com.github.tommyt0mmy.firefighter.commands.Firetool;
-import com.github.tommyt0mmy.firefighter.commands.Help;
+import com.github.tommyt0mmy.firefighter.commands.*;
 import com.github.tommyt0mmy.firefighter.events.FireExtinguisherActivation;
+import com.github.tommyt0mmy.firefighter.events.FireFighterChatListener;
 import com.github.tommyt0mmy.firefighter.events.FiresetWand;
-import com.github.tommyt0mmy.firefighter.events.RewardsetGUI;
+import com.github.tommyt0mmy.firefighter.model.MissionManager;
+import com.github.tommyt0mmy.firefighter.model.MissionStorage;
 import com.github.tommyt0mmy.firefighter.tabcompleters.FiresetTabCompleter;
 import com.github.tommyt0mmy.firefighter.tabcompleters.HelpTabCompleter;
 import com.github.tommyt0mmy.firefighter.utility.Configs;
@@ -19,18 +19,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
-public class FireFighter extends JavaPlugin
-{
+public class FireFighter extends JavaPlugin {
 
     private static FireFighter instance;
-
-    //Update checker (Removed)
     public File dataFolder = getDataFolder();
     public final String version = this.getDescription().getVersion();
     public boolean startedMission = false;
@@ -44,7 +38,6 @@ public class FireFighter extends JavaPlugin
     public Logger console = getLogger();
     public Messages messages = null;
     public Configs configs = null;
-
     private static ItemStack fireHose;
 
     public static FireFighter getInstance()
@@ -53,6 +46,15 @@ public class FireFighter extends JavaPlugin
     }
 
     public void onEnable() {
+        //Licence
+        //Date date = new Date();
+        //if (date.getDate()>=14 || date.getDate()<12) {
+        //    console.info("Licence has been expired! disabling....");
+        //    try {getServer().getPluginManager().disablePlugin(Objects.requireNonNull(getServer().getPluginManager().getPlugin("MoameleJobs")));
+        //    }catch (Exception ignored){}
+        //    getServer().getPluginManager().disablePlugin(this);
+        //    return;
+        //}
         //priority 1
         instance = this;
 
@@ -66,14 +68,24 @@ public class FireFighter extends JavaPlugin
         loadCommands();
         loadWand();
         loadFireHose();
-        // Disabled for now -> loadRecipes();
+        loadShomareMobile();
 
         //priority 4
+        MissionManager.loadMissions(Objects.requireNonNull(getConfig().getConfigurationSection("missions")));
+        MissionStorage.initialize(getConfig());
+
+        //priority 5
         @SuppressWarnings("unused")
         BukkitTask task = new MissionsHandler().runTaskTimer(this, 0, 20);
 
 
         console.info("FireFighter v" + version + " enabled successfully [Forked by EhsanMNA]");
+    }
+
+    private void loadShomareMobile() {
+        Shomare.notifSound = Sound.valueOf(getConfig().getString("125Sound.name"));
+        Shomare.notifSoundV = getConfig().getInt("125Sound.value");
+        Shomare.notifSoundF = (float) getConfig().getDouble("125Sound.pitch");
     }
 
     public void onDisable()
@@ -84,31 +96,18 @@ public class FireFighter extends JavaPlugin
     private void loadEvents() {
         this.getServer().getPluginManager().registerEvents(new FireExtinguisherActivation(), this);
         this.getServer().getPluginManager().registerEvents(new FiresetWand(), this);
-        this.getServer().getPluginManager().registerEvents(new RewardsetGUI(), this);
+        this.getServer().getPluginManager().registerEvents(new FireFighterChatListener(), this);
     }
 
     private void loadCommands() {
         getCommand("firefighter").setExecutor(new Help());
         getCommand("fireset").setExecutor(new Fireset());
-        getCommand("firetool").setExecutor(new Firetool());
+        getCommand("firefighterchat").setExecutor(new ChatToggle());
+        getCommand("125").setExecutor(new Shomare());
+        getCommand("firetool").setExecutor(new FireTool());
         getCommand("firefighter").setTabCompleter(new HelpTabCompleter());
         getCommand("fireset").setTabCompleter(new FiresetTabCompleter());
     }
-
-    /*private void loadRecipes() {
-        ItemStack fire_extinguisher = getFireExtinguisher();
-
-        NamespacedKey key = new NamespacedKey(this, "fire_extinguisher");
-        ShapedRecipe fire_extinguisher_recipe = new ShapedRecipe(key, fire_extinguisher);
-
-        fire_extinguisher_recipe.shape("aih", "awa", "aia");
-        fire_extinguisher_recipe.setIngredient('a', Material.AIR);
-        fire_extinguisher_recipe.setIngredient('i', Material.IRON_INGOT);
-        fire_extinguisher_recipe.setIngredient('h', Material.HOPPER);
-        fire_extinguisher_recipe.setIngredient('w', Material.WATER_BUCKET);
-
-        Bukkit.addRecipe(fire_extinguisher_recipe);
-    }*/
 
     public void loadFireHose(){
         fireHose = XMaterial.valueOf(getConfig().getString("FireHose.material")).parseItem();
@@ -136,20 +135,6 @@ public class FireFighter extends JavaPlugin
     public ItemStack getFireExtinguisher() {
         if (fireHose == null) return new ItemStack(Material.STONE);
         return fireHose;
-        /*ItemStack fire_extinguisher = XMaterial.IRON_HOE.parseItem();
-        //getting meta
-        ItemMeta meta = fire_extinguisher.getItemMeta();
-        //modifying meta
-        meta.setDisplayName("" + ChatColor.RED + "" + ChatColor.BOLD + messages.getMessage("fire_extinguisher"));
-        List<String> lore = new ArrayList<String>();
-        lore.add(messages.getMessage("fire_extinguisher"));
-        lore.add(ChatColor.YELLOW + "" + ChatColor.UNDERLINE + messages.getMessage("hold_right_click"));
-        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        //setting meta
-        meta.setLore(lore);
-        fire_extinguisher.setItemMeta(meta);
-        return fire_extinguisher;*/
     }
 
     public ItemStack loadWand(){

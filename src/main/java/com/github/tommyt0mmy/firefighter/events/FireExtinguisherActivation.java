@@ -19,10 +19,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
+import java.util.UUID;
+
 public class FireExtinguisherActivation implements Listener {
 
     private final FireFighter FireFighterClass = FireFighter.getInstance();
     private final Material fire = XMaterial.FIRE.parseMaterial();
+    private static final HashSet<UUID> waitUntilNext = new HashSet<>();
 
     @SuppressWarnings("deprecation")
     @EventHandler
@@ -35,6 +39,8 @@ public class FireExtinguisherActivation implements Listener {
         try {
             Player p = e.getPlayer();
             ItemStack item = e.getItem();
+
+            if (waitUntilNext.contains(p.getUniqueId())) return;
 
             if (isFireExtinguisher(item)) e.setCancelled(true);
             else return;
@@ -56,6 +62,7 @@ public class FireExtinguisherActivation implements Listener {
             }
 
             //particle effects and turning off fire
+            waitUntilNext.add(p.getUniqueId());
             new BukkitRunnable() {
                 final Location loc = p.getLocation();
                 final Vector direction = loc.getDirection().normalize();
@@ -110,7 +117,10 @@ public class FireExtinguisherActivation implements Listener {
                     if (playExtinguishingSound) XSound.BLOCK_FIRE_EXTINGUISH.play(p, 1, 0);
 
                     loc.subtract(x, y, z);
-                    if (timer > 9) this.cancel();
+                    if (timer > 9) {
+                        this.cancel();
+                        waitUntilNext.remove(p.getUniqueId());
+                    }
                 }
             }.runTaskTimer(FireFighterClass, 0, 1);
 

@@ -8,13 +8,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.jetbrains.annotations.NotNull;
 
-public class Firetool implements CommandExecutor {
+public class FireTool implements CommandExecutor {
 
-    private FireFighter fireFighterClass = FireFighter.getInstance();
+    private final FireFighter fireFighterClass = FireFighter.getInstance();
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String label, String[] args) {
         if (!(sender instanceof Player)) {
             sender.sendMessage(fireFighterClass.messages.formattedMessage("", "only_players_command")); //only pl
             return true;
@@ -25,12 +26,9 @@ public class Firetool implements CommandExecutor {
             return true;
         }
 
-        // creating the fire extinguisher's ItemStack object //
-
         Inventory inventory = p.getInventory();
         inventory.addItem(fireFighterClass.getFireExtinguisher());
         ActionBar.sendActionBar(p,FireFighter.colorize("&e&i"+fireFighterClass.messages.formattedMessage("", "hold_right_click")));
-        // TitleActionBarUtil.sendActionBarMessage(p, ChatColor.YELLOW + "" + ChatColor.UNDERLINE + fireFighterClass.messages.formattedMessage("", "hold_right_click"));
 
         return true;
     }

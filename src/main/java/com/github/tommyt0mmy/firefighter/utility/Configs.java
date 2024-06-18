@@ -17,7 +17,7 @@ public class Configs {
         loadConfigsFile();
     }
 
-    private FireFighter FireFighterClass = FireFighter.getInstance();
+    private final FireFighter FireFighterClass = FireFighter.getInstance();
 
     private FileConfiguration configsConfiguration;
     private File configsFile;

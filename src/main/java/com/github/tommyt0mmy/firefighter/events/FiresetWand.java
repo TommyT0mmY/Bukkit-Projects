@@ -31,21 +31,10 @@ public class FiresetWand implements Listener {
 
             e.setCancelled(true);
             Location clickedBlock_location = e.getClickedBlock().getLocation();
-            //first position
-            if (action == Action.LEFT_CLICK_BLOCK)
-                if (fireFighterClass.fireset_first_position.containsKey(p.getUniqueId()))
-                    if (!fireFighterClass.fireset_first_position.get(p.getUniqueId()).equals(clickedBlock_location)){
-                        setFirstPosition(p, clickedBlock_location);
-                        p.sendMessage("&6[1] &a&lFirst position set");
-                    }
-                else setFirstPosition(p, clickedBlock_location);
-            else  //second position
-                if (fireFighterClass.fireset_second_position.containsKey(p.getUniqueId()))
-                    if (!fireFighterClass.fireset_second_position.get(p.getUniqueId()).equals(clickedBlock_location)){
-                        setSecondPosition(p, clickedBlock_location);
-                        p.sendMessage("&6[2] &2&lSecond position set");
-                    }
-                else setSecondPosition(p, clickedBlock_location);
+            // Left click: first position
+            // Right click: second position
+            if (action == Action.LEFT_CLICK_BLOCK) setFirstPosition(p, clickedBlock_location);
+            else setSecondPosition(p, clickedBlock_location);
 
         }catch (Exception error) {error.printStackTrace();}
     }

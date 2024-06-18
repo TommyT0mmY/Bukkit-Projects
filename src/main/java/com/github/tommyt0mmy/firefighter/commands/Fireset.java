@@ -35,13 +35,12 @@ public class Fireset implements CommandExecutor {
         }
 
         Player p = (Player) Sender;
-        if (!(p.hasPermission(Permissions.FIRESET.getNode()) || p.isOp())) {
+        if (!p.hasPermission(Permissions.FIRESET.getNode())) {
             p.sendMessage(FireFighterClass.messages.formattedMessage("§c", "invalid_permissions"));
             return true;
         }
 
         FireFighterClass.configs.loadConfigs();
-
         ItemStack wand = FireFighterClass.configs.getConfig().getItemStack("fireset.wand");
 
         if (args.length == 0) {
@@ -51,8 +50,6 @@ public class Fireset implements CommandExecutor {
         }else {
             command_switch:
             switch (args[0]) {
-
-
                 case "startmission":
                     //perm check
                     if (!p.hasPermission(Permissions.START_MISSION.getNode()))
@@ -75,10 +72,7 @@ public class Fireset implements CommandExecutor {
                         p.sendMessage(FireFighterClass.messages.formattedMessage("§c", "fireset_mission_not_found"));
                         return true;
                     }
-
                     break;
-
-
                 case "missions": ///MISSIONS LIST///
                     //Page selection
                     int page = 1, count = 0;
@@ -119,8 +113,6 @@ public class Fireset implements CommandExecutor {
                             .replaceAll("<current page>", String.valueOf(page))
                             .replaceAll("<total>", String.valueOf((missions.size() + 1) / 2))));
                     break;
-
-
                 case "deletemission": ///DELETE MISSION///
                     if (args.length != 2) {
                         p.sendMessage(getUsage());
@@ -133,8 +125,6 @@ public class Fireset implements CommandExecutor {
                     } else p.sendMessage(FireFighterClass.messages.formattedMessage("§c", "fireset_mission_not_found"));
 
                     break;
-
-
                 case "editmission": ///EDIT MISSION///
                     if (args.length < 3) {
                         p.sendMessage(getUsage());
@@ -171,15 +161,6 @@ public class Fireset implements CommandExecutor {
                             }
                             FireFighterClass.configs.set("missions." + args[1] + ".description", newDescription.toString());
                             if (!(FireFighterClass.configs.saveToFile())) return false; //error on saving
-
-                            break;
-                        case "rewards":  //editing mission's rewards
-                            if (!p.hasPermission(Permissions.SET_REWARDS.getNode())) {
-                                //invalid permissions
-                                p.sendMessage(FireFighterClass.messages.formattedMessage("§c", "invalid_permissions"));
-                                return true;
-                            }
-                            openRewardsGUI(args[1], p);
 
                             break;
                         default:
@@ -247,58 +228,6 @@ public class Fireset implements CommandExecutor {
         if (FireFighterClass.configs.getConfig().contains("missions." + name)) return true;
 
         return false;
-    }
-
-    private void openRewardsGUI(String missionName, Player inventoryOwner) {
-        //reading rewards informations from config.yml
-        List<ItemStack> inventoryContent = new ArrayList<ItemStack>();
-        String rewardsPath = "missions." + missionName + ".rewards";
-        int Size = 9;
-        String title = ChatColor.LIGHT_PURPLE + "" + ChatColor.BOLD + "Rewards - " + missionName;
-        if (FireFighterClass.configs.getConfig().get(rewardsPath) != null) {
-            //if there are rewards set
-            int rewardsCount = FireFighterClass.configs.getConfig().getInt(rewardsPath + ".size");
-            Size = (rewardsCount / 9 + 1) * 9;
-            for (int i = 0; i < rewardsCount; i++) {
-                ItemStack tmp = FireFighterClass.configs.getConfig().getItemStack(rewardsPath + "." + i);
-                inventoryContent.add(tmp);
-            }
-        }else FireFighterClass.configs.set(rewardsPath + ".size", "0");
-
-        //initializing GUI
-        Inventory GUI = Bukkit.createInventory(inventoryOwner, Size + 9, title);
-        for (int i = 0; i < inventoryContent.size(); i++) {
-            ItemStack tmp = inventoryContent.get(i);
-            GUI.setItem(i, tmp);
-        }
-        ItemStack item1 = XMaterial.LIGHT_GRAY_STAINED_GLASS_PANE.parseItem(); //void part of the footer
-        ItemMeta im1 = item1.getItemMeta();
-        im1.setDisplayName("§r");
-        item1.setItemMeta(im1);
-        ItemStack item2 = XMaterial.LIME_STAINED_GLASS_PANE.parseItem(); //'add a line' button
-        ItemMeta im2 = item2.getItemMeta();
-        im2.setDisplayName(ChatColor.GREEN + "Add a line");
-        item2.setItemMeta(im2);
-        ItemStack item3 = XMaterial.RED_STAINED_GLASS_PANE.parseItem(); //'remove a line' button
-        ItemMeta im3 = item3.getItemMeta();
-        im3.setDisplayName(ChatColor.RED + "Remove a line");
-        item3.setItemMeta(im3);
-        ItemStack item4 = XMaterial.LIME_STAINED_GLASS.parseItem(); //'save changes' button
-        ItemMeta im4 = item4.getItemMeta();
-        im4.setDisplayName(ChatColor.GREEN + "Save changes");
-        item4.setItemMeta(im4);
-        //placing the footer in the inventory
-        GUI.setItem(Size, item1);
-        GUI.setItem(Size + 1, item1);
-        GUI.setItem(Size + 2, item1);
-        GUI.setItem(Size + 3, item2);
-        GUI.setItem(Size + 4, item1);
-        GUI.setItem(Size + 5, item3);
-        GUI.setItem(Size + 6, item1);
-        GUI.setItem(Size + 7, item1);
-        GUI.setItem(Size + 8, item4);
-        //opening GUI
-        inventoryOwner.openInventory(GUI);
     }
 
 }

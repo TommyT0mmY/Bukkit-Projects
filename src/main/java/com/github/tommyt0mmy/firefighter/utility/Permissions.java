@@ -7,6 +7,8 @@ public enum Permissions {
     USE_EXTINGUISHER("firetool.use"),
     FREEZE_EXTINGUISHER("firetool.freeze-durability"),
     FIRESET("fireset"),
+    CHAT("firefighter.chat"),
+    CHAT_TOGGLE("firefighter.chattoggle"),
     START_MISSION("fireset.startmission"),
     SET_REWARDS("fireset.rewardset"),
     SET_WAND("fireset.setwand"),
