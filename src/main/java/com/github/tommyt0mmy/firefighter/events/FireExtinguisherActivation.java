@@ -1,13 +1,11 @@
 package com.github.tommyt0mmy.firefighter.events;
 
 import com.github.tommyt0mmy.firefighter.FireFighter;
+import com.github.tommyt0mmy.firefighter.model.FireFighterItem;
 import com.github.tommyt0mmy.firefighter.utility.Permissions;
 import com.github.tommyt0mmy.firefighter.utility.XMaterial;
 import com.github.tommyt0mmy.firefighter.utility.XSound;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,7 +39,6 @@ public class FireExtinguisherActivation implements Listener {
             ItemStack item = e.getItem();
 
             if (waitUntilNext.contains(p.getUniqueId())) return;
-
             if (isFireExtinguisher(item)) e.setCancelled(true);
             else return;
 
@@ -50,10 +47,12 @@ public class FireExtinguisherActivation implements Listener {
                 return;
             }
 
+            FireFighterItem fireI = getFireFighterItem(item);
+
             //durability
             if (!p.hasPermission(Permissions.FREEZE_EXTINGUISHER.getNode())) {
-                item.setDurability((short) (item.getDurability() + 1));
-                if (item.getDurability() > 249) {
+                item.setDurability((short) (item.getDurability() + fireI.getDur()));
+                if (item.getDurability() > 150) {
                     e.setCancelled(true);
                     p.getInventory().remove(item);
                     XSound.ENTITY_ITEM_BREAK.play(p, 5, 0);
@@ -75,7 +74,17 @@ public class FireExtinguisherActivation implements Listener {
                     double y = direction.getY() * timer + 1.4;
                     double z = direction.getZ() * timer;
                     loc.add(x, y, z);
-                    showParticle(loc, Particle.CLOUD, (int) (timer), (int) (timer / 4));
+                    if (fireI.getParticle().equalsIgnoreCase("cloud")) showParticle(loc, Particle.CLOUD, (int) (timer), (int) (timer / 4));
+                    else {
+                        Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(fireI.getR(), fireI.getG(), fireI.getB()), 100);
+                        //loc.getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), (int) (timer), 0, (int) (timer/ 4), 0, dust);
+                        //loc.getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), 0, loc.getZ(), (int) (timer), 0, 0, 0,
+                        //        new Particle.DustOptions(Color.fromRGB(255, 0, 0), 10));
+                        //loc.getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), (int) (timer), (timer), (int) (timer/4), 0,
+                        //        new Particle.DustOptions(Color.fromRGB(0, 255, 0), 10));
+                        loc.getWorld().spawnParticle(Particle.REDSTONE, loc.getX(), loc.getY(), loc.getZ(), (int) (timer), 0, 0,(int) (timer/4),
+                                dust);
+                    }
 
                     // extinguishing the fire that is in the action range of the fire extinguisher at the "timer" tick
                     // ! the further the smoke from the extinguisher goes, the more its radius increases ! //
@@ -141,17 +150,38 @@ public class FireExtinguisherActivation implements Listener {
     private boolean isFireExtinguisher(ItemStack item) {
         if (item == null) return false;
         if (!item.hasItemMeta()) return false;
-        if (item.getType() != FireFighter.getInstance().getFireExtinguisher().getType()) return false;
+        for (FireFighterItem i : FireFighter.fireHoses){
+            if (item.getType() != i.getItem().getType()) continue;
+            ItemMeta meta = item.getItemMeta();
 
-        ItemMeta meta = item.getItemMeta();
+            assert meta != null;
+            if (!meta.hasLore()) return false;
 
-        assert meta != null;
-        if (!meta.hasLore()) return false;
+            return meta.getLore().get(0).equalsIgnoreCase(FireFighterClass.messages.getMessage("fire_extinguisher"));
+        }
+        return false;
+    }
 
-        return meta.getLore().get(0).equalsIgnoreCase(FireFighterClass.messages.getMessage("fire_extinguisher"));
+    private int getUsage(ItemStack stack){
+        String name = ChatColor.stripColor(stack.getItemMeta().getDisplayName());
+        for (FireFighterItem i : FireFighter.fireHoses){
+            ItemMeta meta = i.getItem().getItemMeta();
+            if (ChatColor.stripColor(meta.getDisplayName()).equalsIgnoreCase(name)) return i.getDur();
+        }
+        return 1;
+    }
+
+    private FireFighterItem getFireFighterItem(ItemStack stack){
+        String name = ChatColor.stripColor(stack.getItemMeta().getDisplayName());
+        for (FireFighterItem i : FireFighter.fireHoses){
+            ItemMeta meta = i.getItem().getItemMeta();
+            if (ChatColor.stripColor(meta.getDisplayName()).equalsIgnoreCase(name)) return i;
+        }
+        return null;
     }
 
     private void showParticle(Location loc, Particle particle, int count, int offsetXZ) {
+
         loc.getWorld().spawnParticle(particle, loc, count, offsetXZ, 0, offsetXZ, 0);
     }
 

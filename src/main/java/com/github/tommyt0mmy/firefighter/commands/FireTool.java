@@ -1,6 +1,7 @@
 package com.github.tommyt0mmy.firefighter.commands;
 
 import com.github.tommyt0mmy.firefighter.FireFighter;
+import com.github.tommyt0mmy.firefighter.model.FireFighterItem;
 import com.github.tommyt0mmy.firefighter.utility.Permissions;
 import com.github.tommyt0mmy.firefighter.utility.titles.ActionBar;
 import org.bukkit.command.Command;
@@ -26,10 +27,20 @@ public class FireTool implements CommandExecutor {
             return true;
         }
 
-        Inventory inventory = p.getInventory();
-        inventory.addItem(fireFighterClass.getFireExtinguisher());
-        ActionBar.sendActionBar(p,FireFighter.colorize("&e&i"+fireFighterClass.messages.formattedMessage("", "hold_right_click")));
+        if (args.length == 0){
+            p.sendMessage(FireFighter.colorize("&c&lUSAGE: &f/firetool <name>"));
+            return true;
+        }
 
+        Inventory inventory = p.getInventory();
+        for (FireFighterItem i : FireFighter.fireHoses)
+            if (i.getName().equalsIgnoreCase(args[0])){
+                inventory.addItem(i.getItem());
+                ActionBar.sendActionBar(p,FireFighter.colorize("&e&i"+fireFighterClass.messages.formattedMessage("", "hold_right_click")));
+                return true;
+            }
+
+        p.sendMessage(FireFighter.colorize("&c&lNot found!"));
         return true;
     }
 

@@ -21,10 +21,10 @@ public class FireFighterChatListener implements Listener {
         for (Player player : Bukkit.getOnlinePlayers()){
             if (!player.hasPermission(Permissions.CHAT.getNode())) continue;
             if (player.getUniqueId().equals(e.getPlayer().getUniqueId())) continue;
-            player.sendMessage(FireFighter.colorize("&f[&cFireFighterChat&f] "+e.getPlayer().getName()+"&7: " + e.getMessage()));
+            player.sendMessage(FireFighter.colorize("&f[&cFireFighterChat&f] "+e.getPlayer().getName()+"&7: " + e.getMessage()).replaceFirst("!",""));
             player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP,10,2);
         }
-        e.getPlayer().sendMessage(FireFighter.colorize("&f[&cFireFighterChat&f] "+e.getPlayer().getName()+"&7: " + e.getMessage()));
+        e.getPlayer().sendMessage(FireFighter.colorize("&f[&cFireFighterChat&f] "+e.getPlayer().getName()+"&7: " + e.getMessage().replaceFirst("!","")));
     }
 
 }

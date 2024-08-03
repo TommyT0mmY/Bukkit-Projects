@@ -4,6 +4,7 @@ import com.github.tommyt0mmy.firefighter.commands.*;
 import com.github.tommyt0mmy.firefighter.events.FireExtinguisherActivation;
 import com.github.tommyt0mmy.firefighter.events.FireFighterChatListener;
 import com.github.tommyt0mmy.firefighter.events.FiresetWand;
+import com.github.tommyt0mmy.firefighter.model.FireFighterItem;
 import com.github.tommyt0mmy.firefighter.model.MissionManager;
 import com.github.tommyt0mmy.firefighter.model.MissionStorage;
 import com.github.tommyt0mmy.firefighter.tabcompleters.FiresetTabCompleter;
@@ -38,7 +39,7 @@ public class FireFighter extends JavaPlugin {
     public Logger console = getLogger();
     public Messages messages = null;
     public Configs configs = null;
-    private static ItemStack fireHose;
+    public static List<FireFighterItem> fireHoses = new ArrayList<>();
 
     public static FireFighter getInstance()
     {
@@ -67,7 +68,7 @@ public class FireFighter extends JavaPlugin {
         loadEvents();
         loadCommands();
         loadWand();
-        loadFireHose();
+        loadFireHoses();
         loadShomareMobile();
 
         //priority 4
@@ -109,17 +110,29 @@ public class FireFighter extends JavaPlugin {
         getCommand("fireset").setTabCompleter(new FiresetTabCompleter());
     }
 
-    public void loadFireHose(){
-        fireHose = XMaterial.valueOf(getConfig().getString("FireHose.material")).parseItem();
-        ItemMeta meta = fireHose.getItemMeta();
-        meta.setDisplayName(colorize(getConfig().getString("FireHose.name")));
-        List<String> lore = new ArrayList<>();
-        lore.add(messages.getMessage("fire_extinguisher"));
-        lore.add(ChatColor.YELLOW + "" + ChatColor.UNDERLINE + messages.getMessage("hold_right_click"));
-        meta.setLore(colorize(lore));
-        meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        fireHose.setItemMeta(meta);
+    public void loadFireHoses(){
+        for (String s : getConfig().getConfigurationSection("FireHoses").getKeys(false)){
+            ItemStack fireHose;
+            fireHose = XMaterial.valueOf(getConfig().getString("FireHoses."+s+".material")).parseItem();
+            ItemMeta meta = fireHose.getItemMeta();
+            meta.setDisplayName(colorize(getConfig().getString("FireHoses."+s+".name")));
+            List<String> lore = colorize(getConfig().getStringList("FireHoses."+s+".lore"));
+            lore.add(0,messages.getMessage("fire_extinguisher"));
+            lore.add(ChatColor.YELLOW + "" + ChatColor.UNDERLINE + messages.getMessage("hold_right_click"));
+            meta.setLore(colorize(lore));
+            meta.addItemFlags(ItemFlag.HIDE_DESTROYS);
+            meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+            try {meta.setCustomModelData(getConfig().getInt("FireHoses."+s+".customModelData"));
+            }catch (Exception ignored){}
+            fireHose.setItemMeta(meta);
+            FireFighterItem it = new FireFighterItem(s,fireHose,getConfig().getInt("FireHoses."+s+".usage"));
+            it.setDisplayName(colorize(getConfig().getString("FireHoses."+s+".name")));
+            it.setR(getConfig().getInt("FireHoses."+s+".Red"));
+            it.setG(getConfig().getInt("FireHoses."+s+".Green"));
+            it.setB(getConfig().getInt("FireHoses."+s+".Blue"));
+            it.setParticle(getConfig().getString("FireHoses."+s+".particle"));
+            fireHoses.add(it);
+        }
     }
 
     public static String colorize(String string){
@@ -132,9 +145,10 @@ public class FireFighter extends JavaPlugin {
         return newList;
     }
 
-    public ItemStack getFireExtinguisher() {
-        if (fireHose == null) return new ItemStack(Material.STONE);
-        return fireHose;
+    public List<ItemStack> getFireExtinguishers() {
+        List<ItemStack> items = new ArrayList<>();
+        for (FireFighterItem i : fireHoses) items.add(i.getItem());
+        return items;
     }
 
     public ItemStack loadWand(){
@@ -142,5 +156,6 @@ public class FireFighter extends JavaPlugin {
         FiresetWand.wand = wand;
         return wand;
     }
+
 
 }

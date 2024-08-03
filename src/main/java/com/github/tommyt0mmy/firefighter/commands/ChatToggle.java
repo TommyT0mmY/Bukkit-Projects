@@ -34,10 +34,10 @@ public class ChatToggle implements CommandExecutor {
         if (args.length == 0){
             if (chats.contains(p.getUniqueId())){
                 chats.remove(p.getUniqueId());
-                p.sendMessage(FireFighter.getInstance().messages.formattedMessage("§c", "firechat_toggle_off"));
+                p.sendMessage(FireFighter.colorize(FireFighter.getInstance().messages.formattedMessage("§c", "firechat_toggle_off")));
             }else {
                 chats.add(p.getUniqueId());
-                p.sendMessage(FireFighter.getInstance().messages.formattedMessage("§c", "firechat_toggle_on"));
+                p.sendMessage(FireFighter.colorize(FireFighter.getInstance().messages.formattedMessage("§c", "firechat_toggle_on")));
             }
         }else {
             for (Player player : Bukkit.getOnlinePlayers()){
@@ -47,6 +47,6 @@ public class ChatToggle implements CommandExecutor {
             }
         }
 
-        return false;
+        return true;
     }
 }
