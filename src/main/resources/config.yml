@@ -1,6 +1,33 @@
 prefix: '[FireFighter] '
+125Sound:
+  name: ENTITY_CAT_HISS
+  value: 10
+  pitch: 1
 fireset: {}
 missions_interval: 3600
 allow_missions_interval: false
 fire_lasting_seconds: 300
 missions: {}
+FireHoses:
+  1:
+    material: MOJANG_BANNER_PATTERN
+    name: "&cFireHose"
+    usage: 10
+    customModelData: 1
+    particle: cloud
+    Red: 0
+    Green: 0
+    Blue: 0
+    lore:
+      - "Fire hose 1"
+  2:
+    material: MOJANG_BANNER_PATTERN
+    name: "&cFireHose EPIC"
+    usage: 2
+    customModelData: 2
+    particle: color
+    Red: 0
+    Green: 0
+    Blue: 0
+    lore:
+      - "Fire hose 2"

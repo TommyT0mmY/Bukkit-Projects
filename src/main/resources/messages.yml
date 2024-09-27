@@ -29,6 +29,12 @@ messages:
   startedmission_subtitle: '<mission_description>'
   startedmission_hotbar: '&eAt coordinates <coordinates>'
   startedmission_chat: '&4&lFire alert at coordinates &r&e<coordinates>'
+  firechat_toggle_on: '&4&lFireFighter chat has been enabled.'
+  firechat_toggle_off: '&4&lFireFighter chat has been disabled.'
+  firechat_125: '&e<player> &4&lFireFighter &7-&e '
+  firechat_125_empty: '&4&lFireFighter: &eYou can not send empty messages'
+  firechat_125_delay: '&4&lFireFighter:&f Please wait <time> seconds to send a new request'
+  firechat_125_send: '&4&lFireFighter:&f Your 125 request has sended, wait for firefighters'
 
 
 #COMMANDS DESCRIPTIONS
